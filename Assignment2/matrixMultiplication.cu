@@ -1,10 +1,9 @@
 #include <cassert>
 #include <iostream>
 #include <time.h>
-
 using namespace std;
 
-const bool SHARED = false;
+const bool SHARED = true;
 
 // Matrix dimensions
 const int M = 1e3 + 7;
@@ -23,6 +22,8 @@ const int K_padded = K + THREADS - K % THREADS;
 const int SHMEM_SIZE = THREADS * THREADS;
 
 __global__ void matrixMul(const int *a, const int *b, int *c) {
+
+    //Shared Memory Approach
     if(SHARED){
         // Compute each thread's global row and column index
         int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -58,6 +59,8 @@ __global__ void matrixMul(const int *a, const int *b, int *c) {
         // Write back results
         if (row < M && col < N) c[row * N + col] = tmp;
     }
+    
+    //Naive(Global Memory) Approach
     else{
         // Compute each thread's global row and column index
         int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -80,21 +83,21 @@ void verify_result(int* a, int* b, int* c) {
     printf("CPU verification has started\n");
     start_time = clock();
 
-  for (int row = 0; row < M_padded; row++) {
-    if (row >= M) continue;
-    for (int col = 0; col < N_padded; col++) {
-      if (col >= N) continue;
-      int tmp = 0;
-      for (int i = 0; i < K_padded; i++) {
-        tmp += a[row * K + i] * b[i * N + col];
-      }
+    for (int row = 0; row < M_padded; row++) {
+        if (row >= M) continue;
+        for (int col = 0; col < N_padded; col++) {
+            if (col >= N) continue;
+            int tmp = 0;
+            for (int i = 0; i < K_padded; i++) {
+                tmp += a[row * K + i] * b[i * N + col];
+            }
 
-      assert(tmp == c[row * N + col]);
+            assert(tmp == c[row * N + col]);
+        }
     }
-  }
-  end_time = clock();
-  cout << "Result verified by CPU\n";
-printf("Time taken by CPU : %f ms\n", (((double)end_time-start_time)/CLOCKS_PER_SEC)*100);
+    end_time = clock();
+    cout << "Result verified by CPU\n";
+    printf("Time taken by CPU : %f ms\n", (((double)end_time-start_time)/CLOCKS_PER_SEC)*100);
 
 }
 
