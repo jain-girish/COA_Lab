@@ -1,0 +1,5 @@
+*.exe
+*.exp
+*.lib
+.vscode
+Assignment2/matrixMulGlobal.cu
