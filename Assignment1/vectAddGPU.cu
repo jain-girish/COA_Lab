@@ -2,7 +2,8 @@
 #include <cuda.h>
 #include <time.h>
 
-const int N = 1e7;
+const bool memSharing = false;
+#define N (int)1e2
 
 __global__ void vectAdd(int *a, int *b, int *c){
 
@@ -21,11 +22,13 @@ int main(){
 
     int *a, *b, *c;
     size_t n = N*sizeof(int);
+    size_t n = N*sizeof(int);
 
     a = (int*)malloc(n);
     b = (int*)malloc(n);
     c = (int*)malloc(n);
 
+    srand(time(NULL));
     srand(time(NULL));
     for(int i=0; i<N; i++){
         a[i] = rand()%100;
@@ -52,6 +55,7 @@ int main(){
     cudaMemcpy(cudaA, a, n, cudaMemcpyHostToDevice);
     cudaMemcpy(cudaB, b, n, cudaMemcpyHostToDevice);
     // cudaMemcpy(cudaC, c, n, cudaMemcpyHostToDevice);
+    // cudaMemcpy(cudaC, c, n, cudaMemcpyHostToDevice);
 
     cudaEvent_t start, stop;
     float time_taken;
@@ -59,7 +63,7 @@ int main(){
     cudaEventCreate(&stop);
 
 
-    int B = 1000, T = N/B;
+    int B = 10, T = N/B;
     printf("GPU code has started\n");
     cudaEventRecord(start,0);
 
@@ -78,7 +82,7 @@ int main(){
 
     printf("%d+%d=%d\n",a[N-1],b[N-1],c[N-1]);
 
-    printf("Time taken by GPU : %f", time_taken);
+    printf("Time taken by GPU : %f\n", time_taken);
 
     cudaFree(cudaA);
     cudaFree(cudaB);
