@@ -22,7 +22,6 @@ int main(){
 
     int *a, *b, *c;
     size_t n = N*sizeof(int);
-    size_t n = N*sizeof(int);
 
     a = (int*)malloc(n);
     b = (int*)malloc(n);

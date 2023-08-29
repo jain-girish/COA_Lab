@@ -1,5 +1,11 @@
 *.exe
-*.exp
-*.lib
+*.ptx
+*.ptxas
+_app_cuda_version_*
+_cuobjdump_list_ptx_*
+*.out
+*.icnt
+*.config
+*.xml
 .vscode
 Assignment2/matrixMulGlobal.cu
