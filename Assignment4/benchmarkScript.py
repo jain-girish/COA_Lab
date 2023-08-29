@@ -4,7 +4,7 @@ import subprocess
 GPU_CONFIG_PATH = os.path.expanduser('~/gpgpu-sim_distribution/configs/tested-cfgs')
 DATA_STORE_PATH = os.path.expanduser('~/Desktop/COA_Lab/Assignment4/Benchmarking')
 CODE_PATH = os.path.expanduser('~/Desktop/COA_Lab/Assignment4/testing/pathfinder/pathfinder.cu')
-BASH_SCRIPT_PATH = os.path.expanduser('~/Desktop/COA_Lab/Assignment4/testing/benchmark.sh')
+BASH_SCRIPT_PATH = os.path.expanduser('~/Desktop/COA_Lab/Assignment4/runCode.sh')
 
 schedulers = ['gto', 'lrr', 'two_level_active:6:0:1']
 
@@ -48,7 +48,7 @@ for folder in os.listdir(GPU_CONFIG_PATH):
             print("    Running commands...")
             os.chdir(new_folder_path)
             
-            subprocess.run(['bash', 'benchmark.sh'])
+            subprocess.run(['bash', 'runCode.sh'])
 
             print(f"    Executed commands in: {new_folder_path}")
 
