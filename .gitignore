@@ -8,4 +8,6 @@ _cuobjdump_list_ptx_*
 *.config
 *.xml
 .vscode
+/MidSem_Proj/testing/kdd_cup
+/MidSem_Proj/testing/out_mmul.txt
 Assignment2/matrixMulGlobal.cu
