@@ -1,0 +1,300 @@
+II. O PPORTUNITIES FOR A D YNAMIC S YSTEM
+In this section we describe various opportunities that a
+runtime system can exploit. We study 27 kernels from the
+Rodinia and Parboil benchmark suites and classify them
+into four categories on a NVIDIA Fermi style (GTX 480)
+architecture: 1) compute intensive which have contention
+for the compute units, 2) memory intensive which stress
+the memory bandwidth, 3) cache sensitive which have con-
+tention for L1 data cache and 4) unsaturated which do not
+saturate any of the resources but can have inclination for
+one of the resources.
+A. Effect of Execution Parameters
+Figure 1 shows the impact of varying SM frequency,
+memory frequency and number of threads on the perfor-
+mance and energy efficiency of different kernels. Energy
+efficiency is defined as the ratio of energy consumed by the
+baseline Fermi architecture over the energy consumed by the
+modified system. Higher value of energy efficiency corre-
+sponds to lower energy consumption in the modified system.
+The kernels and methodology used for this experiment is
+described in Section V. A black star mark on each sub-figure
+shows the position of the baseline. The four quadrants 1 ,
+2 , 3 and 4 in the sub-figures represent deviation from
+the black star. In quadrant 1 performance improves and
+efficiency decreases, while in quadrant 2 performance and
+efficiency decrease. In quadrant 3 performance and effi-
+ciency increase, while in quadrant 4 performance decreases
+and efficiency increases.
+SM Frequency: Figure 1a shows the impact of increasing
+the SM frequency by 15%. The compute kernels show
+proportional improvement in performance and increase in
+energy by moving deep into quadrant 1 . The result for
+memory and cache kernels are very different. Since these
+kernels are not constrained by the SM, faster computations
+by increasing the SM frequency does not reduce any stalls.
+Therefore, these kernels achieve insignificant speedup and
+stay close to the dotted line which represents baseline
+performance. Hence, increasing SM frequency is effective
+only for compute kernels and should be avoided for others.
+On the other hand, when the SM frequency is reduced
+by 15%, the most affected kernels are compute kernels and
+they move significantly into quadrant 4 losing performance
+while saving energy (Figure 1b. In such kernels, the SM’s
+compute resources are the bottleneck and slowing the SM
+will slow these resources, reducing performance. While there
+is a significant reduction in the energy consumed, such
+large drops in performance are generally unacceptable. On
+the other hand, the loss in performance for memory and
+cache kernels is small, while the energy efficiency improves
+significantly, pushing the kernels into quadrant 4 . The
+primary reason for this behavior is the large periods of
+inactivity of the compute resources.
+Memory Frequency: While SM frequency affects energy
+and performance of compute kernels, memory frequency has
+similar effects on memory kernels. Cache kernels behave
+like memory kernels due to cache thrashing, which leads
+to higher bandwidth consumption. Figure 1c shows the
+impact of increasing the DRAM frequency by 15%. Memory
+and cache kernels move deep into quadrant 1 due to the
+improved performance. The decrease in energy efficiency
+is lower than increasing SM frequency as the memory
+contributes less significantly to the total energy. Analogous
+to the impact of SM frequency on memory kernels, in-
+creasing DRAM frequency does not impact compute kernels
+as the memory is not fully utilized at the base frequency.
+These kernels achieve no speedup and increase the energy
+consumption by 5%.
+Decreasing the memory frequency affects the memory and
+cache kernels as shown by Figure 1d. As memory bandwidth
+is the bottleneck for such kernels, this behavior is expected.
+However, reducing DRAM frequency has no performance
+impact on compute kernels while improving energy effi-
+ciency by 5%, indicating an opportunity to decrease the
+DRAM frequency and voltage for compute kernels.
+Number of Thread Blocks: Increasing the DRAM fre-
+quency helps cache kernels get data back faster. However,
+controlling the number of threads to reduce L1 data cache
+thrashing will improve performance significantly with mini-
+mal energy increase. Therefore, we first analyze the optimal
+number of threads that need to run on an SM. Figure 1e
+shows the best performance achieved by the kernels by
+varying the number of concurrent threads on an SM. The
+compute and memory kernels achieve best performance
+with maximum threads and overlap at (Max Threads, 1)
+as saturating these resources does not hurt performance
+significantly and only leads to inefficient execution. The
+best performance for the cache kernels is achieved at lower
+concurrency levels where there is less contention for the
+cache. Therefore the big challenge for a runtime system is
+to find the most efficient number of threads to run. Note
+that if threads less than optimal are run, there might not be
+sufficient parallelism to hide memory access latency, which
+will result in lower performance.
+The algorithm to decide the number of concurrent threads
+should ensure that the number of threads are not reduced
+significantly for compute and memory kernels as perfor-
+mance might suffer due to the lack of work. Figure 1f shows
+the improvement in energy efficiency, if the best performing
+number of concurrent threads are selected statically. There
+is significant improvement in performance and energy ef-
+ficiency as kernels go high into quadrant 3 . Therefore,
+choosing the best number of threads to run concurrently is
+suitable for saving energy as well as improving performance.
+For compute and memory kernels, running maximum threads
+leads to best performance and energy efficiency
+Actions for Dynamic System: The action of increasing,
+maintaining, or decreasing the three parameters depend on
+the objective of the user. If the objective is to save energy, the
+SM and memory frequency should be reduced for memory
+and compute kernels respectively. If the objective is to
+improve performance, the SM and memory frequency should
+be increased for compute and memory kernels respectively.
+Running the optimal number of threads blocks for cache
+sensitive cases is beneficial in both the objectives. These
+conditions and actions are summarized in Table I.
+B. Kernel Variations
+Kernels not only show diverse static characteristics in
+the resources they consume, but their requirements also
+vary across and within invocations. Figure 2a shows the
+distribution of execution time across various invocations of
+the bfs-2 kernel for three statically fixed number of thread
+blocks. All values are normalized to the total time taken
+for the kernel with maximum concurrent thread blocks (3).
+The performance of having 3 thread blocks is better than
+having 1 block until invocation number 7 (vertical stripes).
+But from invocation number 8 to 10 (horizontal stripes),
+having 1 block is better. After invocation 10, having 3 thread
+blocks is better again. An optimal solution would never pick
+the same number of blocks across all invocations. A 16%
+improvement in performance is possible by simply picking
+the ideal number of thread blocks for every invocation as
+shown by the bottom bar.
+An example of variation in resource requirements within
+a kernel invocation is shown in Figure 2b for the mri-g-
+1 benchmark. Over most of the execution time, there are
+more warps waiting for data to come back from memory
+than warps ready to issue to memory. However, for two
+intervals, there are significantly more warps ready to issue to
+memory, putting pressure on the memory pipeline. During
+these intervals, a boost to the memory system will relieve
+the pressure and significantly improve the performance.
+Overall, there are significant opportunities for a system
+that can control the number of threads, SM frequency
+and memory frequency at runtime. These opportunities are
+present not only across different kernels, but also across a
+kernel’s invocations and within a kernel’s invocation. In the
+following section, we describe how Equalizer exploits these
+opportunities to save energy or improve performance.
+III. E QUALIZER
+The goal of Equalizer is to adjust three parameters: num-
+ber of thread blocks, SM frequency and memory frequency,
+to match the requirements of the executing kernels. To detect
+a kernel’s requirement, Equalizer looks at the state of the
+already present active warps on an SM and gauges which
+resources are under contention. The state of active warps
+is determined by a collection of four values: 1) number of
+active warps, 2) number of warps waiting for a dependent
+memory instruction, 3) number of warps ready to issue to
+memory pipeline, and 4) number of warps ready to issue to
+arithmetic pipeline. Large values for the last two counters
+indicate that the corresponding pipelines are under pressure.
+At runtime, Equalizer periodically checks for contention of
+resources using the state of the warps. It makes a decision
+to increase, maintain or decrease the three parameters at
+the end of each execution window (epoch). If Equalizer
+decides to change any parameter, the new value differs from
+the previous value by one step. The details of the decision
+process are explained in Section III-B.
+Figure 3 shows the interaction of Equalizer with the
+other components of a GPU. It receives the four counters
+mentioned above, from the warp scheduler in an SM and
+makes a local decision. If the decision is to increase number
+of threads, the Global Work Distribution Distribution Engine
+(GWDE) which manages thread block distribution across
+SMs, issues a new thread block for execution to the SM.
+If Equalizer decides to reduce the number of concurrent
+threads, it uses the CTA Pausing technique used in [15]
+(Section IV-B). Based on the objective of Equalizer, each
+SM submits a Voltage/Frequency (VF) preference to the
+Frequency Manager every epoch. The frequency manager
+shown in Figure 3 receives these requests and makes a global
+decision for the new VF level for the SM and memory based
+on a majority function.
+
+
+A. State of Warps
+When a kernel executes on an SM, warps of the kernel
+can be in different states. We classify the warps depending
+on their state of execution in a given cycle:
+• W aiting- Warps waiting for an instruction to commit
+so that further dependent instructions can be issued to the
+pipeline are in this category. The majority of warps are
+waiting for a value to be returned from memory. The number
+of warps needed to hide memory latency is not only a
+function of the number of memory accesses made by the
+warps, but also of the amount of compute present per warp.
+An SM should run more than W aiting number of warps
+concurrently to effectively hide memory access latency.
+• Issued- Warps that issue an instruction to the execution
+pipeline are accounted here. It indicates the IPC of the SM
+and a high number of warps in this state indicate good
+performance.
+• Excess ALU (X alu )- Warps that are ready for ex-
+ecution of arithmetic operations, but cannot execute due
+to unavailability of resources are in this category. These
+are ready to execute warps and cannot issue because the
+scheduler can only issue a fixed number of instructions
+per cycle. X alu indicates the excess warps ready for
+arithmetic execution.
+• Excess memory (X mem )- Warps that are ready
+to send an instruction to the Load/Store pipeline but are
+restricted are accounted here. These warps are restricted if
+the pipeline is stalled due to back pressure from memory or
+if the maximum number of instructions that can be issued
+to this pipeline have been issued. X mem warps represents
+the excess warps that will increase the pressure on the
+memory subsystem from the current SM.
+• Others- Warps waiting on a synchronization instruc-
+tion or warps that do not have their instructions in the in-
+struction buffer are called Others. As there is no instruction present for these warps, their requirements is unknown.
+In principle, one warp in X alu or X mem state denotes con-
+tention for resources. However, Equalizer boosts or throttles
+resources in discrete steps and in either cases, there should
+not be lack of work due to the modulation of parameters.
+Hence, there should be some level of contention present
+before Equalizer performs its actions.
+Figure 4 shows the distribution of three of the above
+states on an SM for the 27 kernels broken down by cat-
+egory, while running maximum concurrent threads. Others
+category is not shown as their resource requirements cannot
+be observed. The following observations are made from the
+state of warps:
+• Compute intensive kernels have a significantly larger
+number of warps in X alu state as compared to other kernels.
+• Memory intensive and cache sensitive kernels have a
+significantly larger number of warps that are in X mem state
+as compared to the other categories.
+• All unsaturated kernels still have inclination for either
+compute or memory resources as they have significant
+fraction of warps in X alu or X mem state.
+Unifying Actions on Memory Intensive and Cache
+Sensitive Kernels: As the state of the warps for memory in-
+tensive and cache sensitive kernels are similar, we unify the
+process of tuning the resources for the two cases. Figure 5
+shows the performance of memory intensive kernels with a
+varying number of thread blocks. All kernels saturate their
+performance well before reaching the maximum number of
+concurrent blocks. As long as the number of blocks for a
+memory intensive kernel is enough to keep the bandwidth
+saturated, we do not need to run the maximum number of
+blocks. In case the large number of warps in X mem state
+were due to cache thrashing, this reduction in thread blocks will reduce cache contention.
+In principle, if every cycle an SM sends a request that
+reaches DRAM, then as there are multiple SMs, the band-
+width will be saturated leading to back pressure at the SM.
+Therefore, the Load Store Unit(LSU) will get blocked and
+all warps waiting to access memory will stall. So even a
+single warp in X mem state is indicative of memory back
+pressure. However, when this X mem warp eventually sends
+its memory request, it might be hit in the L1 or L2 cache.
+Therefore the earlier X mem state of the warp was not
+actually representing excess pressure on DRAM and so we
+conservatively assume that if there are two warps in X mem
+state in steady state then the bandwidth is saturated. So
+Equalizer tries to run the minimum number of blocks that
+will keep the number of warps in X mem greater than two
+and keep the memory system busy and reduce L1 cache
+contention with minimum number of thread blocks.
+
+Algorithm 1 Decision algorithm of Equalizer
+. nM em, nALU are the number of warps in X alu and X mem state
+. nW aiting is the number of warps in waiting state
+. nActive is the number of active, accounted warps on an SM
+. W cta and numBlocks are # warps in a block and # blocks
+. M emAction and CompAction are frequency changes
+————————————————————————————–
+if nM em > W cta then
+. Definitely memory intensive
+numBlocks = numBlocks - 1
+M emAction = true
+else if nALU ¿ W cta then
+. Definitely compute intensive
+CompAction = true
+else if nM em > 2 then
+. Likely memory intensive
+M emAction = true
+else if nW aiting > nActive/2 then
+. Close to ideal kernel
+numBlocks = numBlocks + 1
+if nALU > nM em then
+. Higher compute inclination
+CompAction = true
+else
+. Higher memory inclination
+M emAction = true
+end if
+else if nActive == 0 then
+CompAction = true
+. Improve load imbalance
+end if

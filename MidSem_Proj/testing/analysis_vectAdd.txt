@@ -1,0 +1,79 @@
+kernel_launch_uid = 1 
+
+Issued:  8064
+Waiting:  145580
+XALU:  1630
+XMEM:  59501
+Others:  56721
+Warp Null:  0
+Warp Done:  162428
+CDP1:  0
+CDP2:  0
+Control Hazard:  288
+Diverge Return:  0
+Not Checked:  146828
+_Issued:  13209
+_Waiting:  28116
+_XALU:  3955
+_XMEM:  16558
+_Others:  10831
+_Warp Null:  0
+_Warp Done:  74159
+_CDP1:  0
+_CDP2:  0
+_Control Hazard:  0
+_Diverge Return:  0
+
+Total Entries 581040
+Total Expected Entries =  581040
+gpu_tot_sim_cycle = 12106
+
+----------------------------------------
+
+Num Kernels:  1
+
+Total Sim Cycles:  12106
+Num Warps:  32
+
+Issued:  8064
+Waiting:  145580
+XALU:  1630
+XMEM:  59501
+Others:  56721
+
+Warp Null:  0
+Warp Done:  162428
+CDP1:  0
+CDP2:  0
+Control Hazard:  288
+Diverge Return:  0
+
+_Issued:  13209
+_Waiting:  28116
+_XALU:  3955
+_XMEM:  16558
+_Others:  10831
+
+_Warp Null:  0
+_Warp Done:  74159
+_CDP1:  0
+_CDP2:  0
+_Control Hazard:  0
+_Diverge Return:  0
+
+Not including warps not checked
+
+Actual Entries 271496
+Actual Entries(including control hazard, etc) 434212
+
+Including warps not checked
+Warps not Checked:  146828
+
+Actual Entries 344165
+Actual Entries(including control hazard, etc) 581040
+
+Expected total entries 581040
+
+Called:  0
+
+Pipeline Cycles:  0
