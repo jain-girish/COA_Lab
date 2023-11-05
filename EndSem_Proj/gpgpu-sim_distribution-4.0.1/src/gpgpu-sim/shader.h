@@ -359,7 +359,7 @@ class scheduler_unit {  // this can be copied freely, so can be used in std
   // all the derived schedulers.  The scheduler's behaviour can be
   // modified by changing the contents of the m_next_cycle_prioritized_warps
   // list.
-  void cycle();
+  int cycle();
 
   // These are some common ordering fucntions that the
   // higher order schedulers can take advantage of
@@ -390,6 +390,8 @@ class scheduler_unit {  // this can be copied freely, so can be used in std
   // Derived classes can override this function to populate
   // m_supervised_warps with their scheduling policies
   virtual void order_warps() = 0;
+  
+  void order_warps_max_cta_issued();
 
   int get_schd_id() const { return m_id; }
 
@@ -1912,6 +1914,20 @@ class shader_core_ctx : public core_t {
     else
       return 0;
   }
+
+  bool printed = false;
+
+  void update_cta_inst(int cta_id) { 
+    if(cta_id!=-1){
+      cta_inst_issued[cta_id]++;
+      printf("!@#$UPDATED_CTA %d of Shader %d : ", cta_id, m_sid);
+      for(int i=0; i<m_config->max_cta_per_core; i++){
+        printf("%d ", cta_inst_issued[i]);
+      }
+      printf("\n");
+    }
+  }
+
   kernel_info_t *get_kernel() { return m_kernel; }
   unsigned get_sid() const { return m_sid; }
 
@@ -2195,6 +2211,13 @@ class shader_core_ctx : public core_t {
   shader_core_stats *m_stats;
 
   // CTA scheduling / hardware thread allocation
+
+
+  unsigned net_cta_issued;  // used to track the number of ctas issued to the
+                            // simt core
+  int cta_inst_issued[MAX_CTA_PER_SHADER]; // used to track the number of instructions issued by each cta
+
+
   unsigned m_n_active_cta;  // number of Cooperative Thread Arrays (blocks)
                             // currently running on this shader.
   unsigned m_cta_status[MAX_CTA_PER_SHADER];  // CTAs status

@@ -1,5 +1,8 @@
 import os
 
+
+folder_path = "~/Desktop/COA_Lab/EndSem_Proj/gpgpu-sim_distribution-4.0.1/src"
+
 def search_files_for_string(folder_path, target_string):
     for root, dirs, files in os.walk(folder_path):
         for file in files:
@@ -14,6 +17,5 @@ def search_files_for_string(folder_path, target_string):
                 pass
 
 # Example usage: searching for the string "example" in files in the folder "path/to/folder"
-folder_path = "gpgpu-sim_distribution-4.0.1/src"
-target_string = "m_supervised_warps"
+target_string = "->step"
 search_files_for_string(os.path.expanduser(folder_path), target_string)

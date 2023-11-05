@@ -132,7 +132,10 @@ void shader_core_ctx::create_front_pipeline() {
   m_not_completed = 0;
   m_active_threads.reset();
   m_n_active_cta = 0;
-  for (unsigned i = 0; i < MAX_CTA_PER_SHADER; i++) m_cta_status[i] = 0;
+
+  net_cta_issued = 0; // for tracking net CTAs issued per shader core
+
+  for (unsigned i = 0; i < MAX_CTA_PER_SHADER; i++){ m_cta_status[i] = 0; cta_inst_issued[i] = 0; }
   for (unsigned i = 0; i < m_config->n_thread_per_shader; i++) {
     m_thread[i] = NULL;
     m_threadState[i].m_cta_id = -1;
@@ -226,6 +229,8 @@ void shader_core_ctx::create_schedulers() {
         abort();
     };
   }
+  // printf("!@#$Warps per core: %d\n", m_warp.size());
+  // printf("!@#$Sched per core: %d\n", schedulers.size());
 
   for (unsigned i = 0; i < m_warp.size(); i++) {
     // distribute i's evenly though schedulers;
@@ -1029,7 +1034,7 @@ void shader_core_ctx::issue() {
   unsigned j;
   for (unsigned i = 0; i < schedulers.size(); i++) {
     j = (Issue_Prio + i) % schedulers.size();
-    schedulers[j]->cycle();
+    update_cta_inst( schedulers[j]->cycle() );
   }
   Issue_Prio = (Issue_Prio + 1) % schedulers.size();
 
@@ -1063,6 +1068,11 @@ shd_warp_t &scheduler_unit::warp(int i) { return *((*m_warp)[i]); }
  * then only the warps with highest RR priority will be placed in the
  * result_list.
  */
+
+
+
+
+
 template <class T>
 void scheduler_unit::order_lrr(
     std::vector<T> &result_list, const typename std::vector<T> &input_list,
@@ -1127,7 +1137,7 @@ void scheduler_unit::order_by_priority(
   }
 }
 
-void scheduler_unit::cycle() {
+int scheduler_unit::cycle() {
   SCHED_DPRINTF("scheduler_unit::cycle()\n");
   bool valid_inst =
       false;  // there was one warp with a valid instruction to issue (didn't
@@ -1135,8 +1145,11 @@ void scheduler_unit::cycle() {
   bool ready_inst = false;   // of the valid instructions, there was one not
                              // waiting for pending register writes
   bool issued_inst = false;  // of these we issued one
+  int issued_cta_id = -1;
+
 
   order_warps();
+
   for (std::vector<shd_warp_t *>::const_iterator iter =
            m_next_cycle_prioritized_warps.begin();
        iter != m_next_cycle_prioritized_warps.end(); iter++) {
@@ -1386,6 +1399,8 @@ void scheduler_unit::cycle() {
         warp(warp_id).ibuffer_flush();
       }
       if (warp_inst_issued) {
+        // shader_core_ctx::update_cta_inst((*iter)->get_cta_id());
+        issued_cta_id = (*iter)->get_cta_id();
         SCHED_DPRINTF(
             "Warp (warp_id %u, dynamic_warp_id %u) issued %u instructions\n",
             (*iter)->get_warp_id(), (*iter)->get_dynamic_warp_id(), issued);
@@ -1427,6 +1442,8 @@ void scheduler_unit::cycle() {
                                         // to memory)
   else if (!issued_inst)
     m_stats->shader_cycle_distro[2]++;  // pipeline stalled
+
+  return issued_cta_id;
 }
 
 void scheduler_unit::do_on_warp_issued(
@@ -2687,6 +2704,8 @@ void shader_core_ctx::register_cta_thread_exit(unsigned cta_num,
   m_cta_status[cta_num]--;
   if (!m_cta_status[cta_num]) {
     // Increment the completed CTAs
+    printf("^^^CTA %d completed of Shader %d after %d instructions %d CTAs remain\n", cta_num,
+           m_sid, cta_inst_issued[cta_num], m_n_active_cta-1);
     m_stats->ctas_completed++;
     m_gpu->inc_completed_cta();
     m_n_active_cta--;
