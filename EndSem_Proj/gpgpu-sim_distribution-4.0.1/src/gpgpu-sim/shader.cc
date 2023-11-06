@@ -1147,7 +1147,10 @@ int scheduler_unit::cycle() {
   bool issued_inst = false;  // of these we issued one
   int issued_cta_id = -1;
 
-
+  if(!m_shader->m_gpu->kernel_more_cta_left(m_shader->m_kernel)){
+    // printf("Max CTA issued for this kernel with shader %d\n", m_shader->m_sid);
+    m_shader->last_cta_cycles++;
+  }
   order_warps();
 
   for (std::vector<shd_warp_t *>::const_iterator iter =

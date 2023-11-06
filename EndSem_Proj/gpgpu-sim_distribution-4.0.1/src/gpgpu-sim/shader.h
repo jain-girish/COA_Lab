@@ -1915,16 +1915,18 @@ class shader_core_ctx : public core_t {
       return 0;
   }
 
+  unsigned int last_cta_cycles = 0;
+
   bool printed = false;
 
   void update_cta_inst(int cta_id) { 
     if(cta_id!=-1){
       cta_inst_issued[cta_id]++;
-      printf("!@#$UPDATED_CTA %d of Shader %d : ", cta_id, m_sid);
-      for(int i=0; i<m_config->max_cta_per_core; i++){
-        printf("%d ", cta_inst_issued[i]);
-      }
-      printf("\n");
+      // printf("!@#$UPDATED_CTA %d of Shader %d : ", cta_id, m_sid);
+      // for(int i=0; i<m_config->max_cta_per_core; i++){
+      //   printf("%d ", cta_inst_issued[i]);
+      // }
+      // printf("\n");
     }
   }
 

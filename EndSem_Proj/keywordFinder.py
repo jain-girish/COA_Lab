@@ -17,5 +17,5 @@ def search_files_for_string(folder_path, target_string):
                 pass
 
 # Example usage: searching for the string "example" in files in the folder "path/to/folder"
-target_string = "->step"
+target_string = "gpgpu_silicon_slowdown = "
 search_files_for_string(os.path.expanduser(folder_path), target_string)
