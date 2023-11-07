@@ -70,8 +70,8 @@ int main() {
   cudaMemcpy(d_b, h_b.data(), bytes, cudaMemcpyHostToDevice);
 
   // Threads
-  // int THREADS = 8;
-  int THREADS = 32;
+  int THREADS = 8;
+  // int THREADS = 16;
 
   // Blocks per grid dimension
   // int BLOCKS = 32;

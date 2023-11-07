@@ -359,7 +359,24 @@ class scheduler_unit {  // this can be copied freely, so can be used in std
   // all the derived schedulers.  The scheduler's behaviour can be
   // modified by changing the contents of the m_next_cycle_prioritized_warps
   // list.
-  int cycle();
+  std::vector<unsigned int> cycle();
+
+  unsigned int get_ocu_availability_mask();
+  
+  void get_shared_warps(unsigned int availability[], std::vector<std::pair<unsigned int, shd_warp_t*>> &sp_inst, std::vector<std::pair<unsigned int, shd_warp_t*>> &sfu_inst, std::vector<std::pair<unsigned int, shd_warp_t*>> &mem_inst, unsigned int sched_id);
+  
+  unsigned int get_inst_type(const warp_inst_t* inst);
+
+  void add_shared_warp(unsigned int i) {
+    add_supervised_warp_id(i);
+    done_adding_supervised_warps();
+  }
+  void remove_shared_warp(shd_warp_t *warp) {
+    if(m_supervised_warps.size()>0){
+      std::remove(m_supervised_warps.begin(), m_supervised_warps.end(), warp);
+      m_last_supervised_issued = m_supervised_warps.end();
+    }
+  }
 
   // These are some common ordering fucntions that the
   // higher order schedulers can take advantage of
@@ -1601,6 +1618,10 @@ class shader_core_config : public core_config {
   char *specialized_unit_string[SPECIALIZED_UNIT_NUM];
   mutable std::vector<specialized_unit_params> m_specialized_unit;
   unsigned m_specialized_unit_num;
+
+  // KAWS Parameters
+  bool enable_kernel_aware_warp_scheduler = false;
+  bool enable_warp_sharing = false;
 };
 
 struct shader_core_stats_pod {
@@ -1918,12 +1939,13 @@ class shader_core_ctx : public core_t {
   unsigned int last_cta_cycles = 0;
 
   bool printed = false;
+  bool max_cta_issued = false;
 
-  void update_cta_inst(int cta_id) { 
-    if(cta_id!=-1){
+  void update_cta_inst(std::vector<unsigned int> cta_ids) {
+    for(auto cta_id : cta_ids){
       cta_inst_issued[cta_id]++;
       // printf("!@#$UPDATED_CTA %d of Shader %d : ", cta_id, m_sid);
-      // for(int i=0; i<m_config->max_cta_per_core; i++){
+      // for(int i=0; i<MAX_CTA_PER_SHADER; i++){
       //   printf("%d ", cta_inst_issued[i]);
       // }
       // printf("\n");

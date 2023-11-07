@@ -536,6 +536,14 @@ void shader_core_config::reg_options(class OptionParser *opp) {
                          &reg_file_port_throughput,
                          "the number ports of the register file", "1");
 
+  option_parser_register(opp, "-gpgpu_enable_kernel_aware_warp_scheduling",
+                         OPT_BOOL,
+                         &enable_kernel_aware_warp_scheduler,
+                         "Enable kernel-aware warp scheduling", "0");
+  option_parser_register(opp, "-gpgpu_enable_warp_sharing", OPT_BOOL,
+                         &enable_warp_sharing, "Enable warp sharing", "0");
+
+
   for (unsigned j = 0; j < SPECIALIZED_UNIT_NUM; ++j) {
     std::stringstream ss;
     ss << "-specialized_unit_" << j + 1;
