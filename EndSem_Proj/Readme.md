@@ -143,6 +143,8 @@ for(int i=0;i<schedulers.size();i++){
 ```
 
 ## Benchmark Analysis
-![Alt text](./KAWS%20(1).png?raw=true "Figure 1")
-![Alt text](./2.11%25.png?raw=true "Figure 2")
-![Alt text](./2.11%25%20(1).png?raw=true "Figure 3")
+<p align="center">
+  <img src="./KAWS%20(1).png?raw=true" /><br/>
+  <img src="./2.11%25.png?raw=true" /><br/>
+  <img src="./2.11%25%20(1).png?raw=true" /><br/>
+</p>
