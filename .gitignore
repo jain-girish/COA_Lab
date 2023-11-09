@@ -11,3 +11,4 @@ _cuobjdump_list_ptx_*
 /MidSem_Proj/testing/kdd_cup
 /MidSem_Proj/testing/out_mmul.txt
 Assignment2/matrixMulGlobal.cu
+/EndSem_Proj/testing/gpu-rodinia
