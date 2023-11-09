@@ -268,9 +268,18 @@ void gpgpu_context::print_simulation_time() {
   printf("gpgpu_simulation_rate = %u (cycle/sec)\n", cycles_per_sec);
   printf("gpgpu_silicon_slowdown = %ux\n",
          the_gpgpusim->g_the_gpu->shader_clock() * 1000 / cycles_per_sec);
-  printf("IDLE stalls: %u\n", STALLS[IDLE]);
-  printf("SCOREBOARD stalls: %u\n", STALLS[SCOREBOARD]);
-  printf("PIPELINE stalls: %u\n", STALLS[PIPELINE]);
+
+  // Printing stall information
+  unsigned long long idle = 0, scoreboard = 0, pipeline = 0;
+  for (int i = 0; i < 28; i++) {
+    idle += STALLS[i][IDLE];
+    scoreboard += STALLS[i][SCOREBOARD];
+    pipeline += STALLS[i][PIPELINE];
+  }
+  printf("IDLE stalls: %llu\n", idle);
+  printf("SCOREBOARD stalls: %llu\n", scoreboard);
+  printf("PIPELINE stalls: %llu\n", pipeline);
+  
   fflush(stdout);
 }
 

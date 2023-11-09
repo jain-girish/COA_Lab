@@ -50,7 +50,7 @@
 
 #include "../stalls.h"
 
-unsigned long long STALLS[3] = {0};
+unsigned STALLS[28][3];
 
 #define PRIORITIZE_MSHR_OVER_WB 1
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
@@ -164,6 +164,10 @@ void shader_core_ctx::create_front_pipeline() {
   m_L1I = new read_only_cache(name, m_config->m_L1I_config, m_sid,
                               get_shader_instruction_cache_id(), m_icnt,
                               IN_L1I_MISS_QUEUE);
+  
+  //Initializing STALLS
+  for (int i = 0; i < 28*3; i++)
+    *((int*)STALLS + i) = 0;
 }
 
 void shader_core_ctx::create_schedulers() {
@@ -1120,51 +1124,53 @@ void shader_core_ctx::issue() {
       // printf("!@#$Core %d Schd %d : %d %d %d\n", m_sid, i, !!(x & (1<<2)), !!(x & (1<<1)), !!(x & (1<<0)));
     }
     // printf("!@#$Inst types: %d %d %d\n", sp_inst_warps.size(), sfu_inst_warps.size(), mem_inst_warps.size());
-    if(m_config->enable_kernel_aware_warp_scheduler){
-      if(max_cta_issued){
-        sort(sp_inst_warps.begin(), sp_inst_warps.end(), 
-            [this](std::pair<unsigned int, shd_warp_t*> lhs, std::pair<unsigned int, shd_warp_t*> rhs) {
-              int st1 = m_cta_status[lhs.second->get_cta_id()];
-              int st2 = m_cta_status[rhs.second->get_cta_id()];
-              int inst1 = cta_inst_issued[ lhs.second->get_cta_id() ];
-              int inst2 = cta_inst_issued[ rhs.second->get_cta_id() ];
-              return compare_cta_inst(st1, st2, inst1, inst2);
-            }
-        );
 
-        sort(sfu_inst_warps.begin(), sfu_inst_warps.end(), 
-            [this](std::pair<unsigned int, shd_warp_t*> lhs, std::pair<unsigned int, shd_warp_t*> rhs) {
-              int st1 = m_cta_status[lhs.second->get_cta_id()];
-              int st2 = m_cta_status[rhs.second->get_cta_id()];
-              int inst1 = cta_inst_issued[ lhs.second->get_cta_id() ];
-              int inst2 = cta_inst_issued[ rhs.second->get_cta_id() ];
-              return compare_cta_inst(st1, st2, inst1, inst2);
-            }
-        );
+    // if(m_config->enable_kernel_aware_warp_scheduler){
+    //   if(max_cta_issued){
+    //     sort(sp_inst_warps.begin(), sp_inst_warps.end(), 
+    //         [this](std::pair<unsigned int, shd_warp_t*> lhs, std::pair<unsigned int, shd_warp_t*> rhs) {
+    //           int st1 = m_cta_status[lhs.second->get_cta_id()];
+    //           int st2 = m_cta_status[rhs.second->get_cta_id()];
+    //           int inst1 = cta_inst_issued[ lhs.second->get_cta_id() ];
+    //           int inst2 = cta_inst_issued[ rhs.second->get_cta_id() ];
+    //           return compare_cta_inst(st1, st2, inst1, inst2);
+    //         }
+    //     );
 
-        sort(mem_inst_warps.begin(), mem_inst_warps.end(), 
-            [this](std::pair<unsigned int, shd_warp_t*> lhs, std::pair<unsigned int, shd_warp_t*> rhs) {
-              int st1 = m_cta_status[lhs.second->get_cta_id()];
-              int st2 = m_cta_status[rhs.second->get_cta_id()];
-              int inst1 = cta_inst_issued[ lhs.second->get_cta_id() ];
-              int inst2 = cta_inst_issued[ rhs.second->get_cta_id() ];
-              return compare_cta_inst(st1, st2, inst1, inst2);
-            }
-        );
-      }
-    }
+    //     sort(sfu_inst_warps.begin(), sfu_inst_warps.end(), 
+    //         [this](std::pair<unsigned int, shd_warp_t*> lhs, std::pair<unsigned int, shd_warp_t*> rhs) {
+    //           int st1 = m_cta_status[lhs.second->get_cta_id()];
+    //           int st2 = m_cta_status[rhs.second->get_cta_id()];
+    //           int inst1 = cta_inst_issued[ lhs.second->get_cta_id() ];
+    //           int inst2 = cta_inst_issued[ rhs.second->get_cta_id() ];
+    //           return compare_cta_inst(st1, st2, inst1, inst2);
+    //         }
+    //     );
+
+    //     sort(mem_inst_warps.begin(), mem_inst_warps.end(), 
+    //         [this](std::pair<unsigned int, shd_warp_t*> lhs, std::pair<unsigned int, shd_warp_t*> rhs) {
+    //           int st1 = m_cta_status[lhs.second->get_cta_id()];
+    //           int st2 = m_cta_status[rhs.second->get_cta_id()];
+    //           int inst1 = cta_inst_issued[ lhs.second->get_cta_id() ];
+    //           int inst2 = cta_inst_issued[ rhs.second->get_cta_id() ];
+    //           return compare_cta_inst(st1, st2, inst1, inst2);
+    //         }
+    //     );
+    //   }
+    // }
 
     for(int i=0;i<schedulers.size();i++){
       unsigned int ocu_availabily = availability[i];
           if(ocu_availabily & (1<<0)){
             if(sp_inst_warps.size()>0){
               std::vector<std::pair<unsigned int, shd_warp_t*>> :: iterator it = sp_inst_warps.begin();
-              // printf("Adding warp to scheduler\n");
+              // Adding warp to scheduler with available OCU
               schedulers[i]->add_shared_warp((*it).second->get_warp_id());
-              // printf("Removing warp from scheduler\n");
+              // Removing warp from original scheduler
               schedulers[(*it).first]->remove_shared_warp((*it).second);
-              // printf("Erasing warp from sp vector\n");
-              sp_inst_warps.erase(it);
+              // Erasing warp from vector
+              sp_inst_warps.erase(it);\
+              // Done sharing warp
             }
           }
           if(ocu_availabily & (1<<1)){
@@ -1177,13 +1183,19 @@ void shader_core_ctx::issue() {
           }
           if(ocu_availabily & (1<<2)){
             if(mem_inst_warps.size()>0){
+              // printf("Sharing warp with mem\n");
               std::vector<std::pair<unsigned int, shd_warp_t*>> :: iterator it = mem_inst_warps.begin();
+              // printf("Adding warp to scheduler mem\n");
               schedulers[i]->add_shared_warp((*it).second->get_warp_id());
+              // printf("Removing warp from scheduler mem\n");
               schedulers[(*it).first]->remove_shared_warp((*it).second);
+              // printf("Erasing warp from mem vector\n");
               mem_inst_warps.erase(it);
+              // printf("Done sharing warp with mem\n");
             }
           }
     }
+  
   }
 
   if(!max_cta_issued){
@@ -1341,7 +1353,6 @@ std::vector<unsigned int> scheduler_unit::cycle() {
                              // waiting for pending register writes
   bool issued_inst = false;  // of these we issued one
   std::vector<unsigned int> issued_info;
-  unsigned int num_idle=0, num_scoreboard_fail=0, num_pipeline_fail=0;
 
   if(m_shader->m_config->enable_kernel_aware_warp_scheduler){
     if(m_shader->m_gpu->kernel_more_cta_left(m_shader->m_kernel))
@@ -1373,16 +1384,12 @@ std::vector<unsigned int> scheduler_unit::cycle() {
                                                  // Pascal)
 
     if (warp(warp_id).ibuffer_empty()){
-      // num_idle++;
-      STALLS[IDLE]++;
       SCHED_DPRINTF(
           "Warp (warp_id %u, dynamic_warp_id %u) fails as ibuffer_empty\n",
           (*iter)->get_warp_id(), (*iter)->get_dynamic_warp_id());
     }
 
     if (warp(warp_id).waiting()){
-      // num_idle++;
-      STALLS[IDLE]++;
       SCHED_DPRINTF(
           "Warp (warp_id %u, dynamic_warp_id %u) fails as waiting for "
           "barrier\n",
@@ -1412,8 +1419,6 @@ std::vector<unsigned int> scheduler_unit::cycle() {
       if (pI) {
         assert(valid);
         if (pc != pI->pc) {
-          // num_idle++;
-          STALLS[IDLE]++;
           SCHED_DPRINTF(
               "Warp (warp_id %u, dynamic_warp_id %u) control hazard "
               "instruction flush\n",
@@ -1449,7 +1454,6 @@ std::vector<unsigned int> scheduler_unit::cycle() {
                 warp_inst_issued = true;
                 previous_issued_inst_exec_type = exec_unit_type_t::MEM;
               }
-              else{  num_pipeline_fail++; STALLS[PIPELINE]++;}
             } else {
               bool sp_pipe_avail =
                   (m_shader->m_config->gpgpu_num_sp_units > 0) &&
@@ -1532,7 +1536,6 @@ std::vector<unsigned int> scheduler_unit::cycle() {
                   warp_inst_issued = true;
                   previous_issued_inst_exec_type = exec_unit_type_t::INT;
                 }
-                else{  num_pipeline_fail++; STALLS[PIPELINE]++;}
               } else if ((m_shader->m_config->gpgpu_num_dp_units > 0) &&
                          (pI->op == DP_OP) &&
                          !(diff_exec_units && previous_issued_inst_exec_type ==
@@ -1545,7 +1548,6 @@ std::vector<unsigned int> scheduler_unit::cycle() {
                   warp_inst_issued = true;
                   previous_issued_inst_exec_type = exec_unit_type_t::DP;
                 }
-                else{  num_pipeline_fail++; STALLS[PIPELINE]++;}
               }  // If the DP units = 0 (like in Fermi archi), then execute DP
                  // inst on SFU unit
               else if (((m_shader->m_config->gpgpu_num_dp_units == 0 &&
@@ -1563,7 +1565,6 @@ std::vector<unsigned int> scheduler_unit::cycle() {
                   warp_inst_issued = true;
                   previous_issued_inst_exec_type = exec_unit_type_t::SFU;
                 }
-                else{  num_pipeline_fail++; STALLS[PIPELINE]++;}
               } else if ((pI->op == TENSOR_CORE_OP) &&
                          !(diff_exec_units && previous_issued_inst_exec_type ==
                                                   exec_unit_type_t::TENSOR)) {
@@ -1575,7 +1576,6 @@ std::vector<unsigned int> scheduler_unit::cycle() {
                   warp_inst_issued = true;
                   previous_issued_inst_exec_type = exec_unit_type_t::TENSOR;
                 }
-                else{  num_pipeline_fail++; STALLS[PIPELINE]++;}
               } else if ((pI->op >= SPEC_UNIT_START_ID) &&
                          !(diff_exec_units &&
                            previous_issued_inst_exec_type ==
@@ -1598,13 +1598,10 @@ std::vector<unsigned int> scheduler_unit::cycle() {
                   previous_issued_inst_exec_type =
                       exec_unit_type_t::SPECIALIZED;
                 }
-                else{  num_pipeline_fail++; STALLS[PIPELINE]++;}
               }
 
             }  // end of else
           } else {
-            // num_scoreboard_fail++;
-            STALLS[SCOREBOARD]++;
             SCHED_DPRINTF(
                 "Warp (warp_id %u, dynamic_warp_id %u) fails scoreboard\n",
                 (*iter)->get_warp_id(), (*iter)->get_dynamic_warp_id());
@@ -1655,13 +1652,19 @@ std::vector<unsigned int> scheduler_unit::cycle() {
   }
 
   // issue stall statistics:
-  if (!valid_inst)
+  if (!valid_inst){
     m_stats->shader_cycle_distro[0]++;  // idle or control hazard
-  else if (!ready_inst)
+    STALLS[m_shader->m_sid][IDLE]++;
+  }
+  else if (!ready_inst){
     m_stats->shader_cycle_distro[1]++;  // waiting for RAW hazards (possibly due
                                         // to memory)
-  else if (!issued_inst)
+    STALLS[m_shader->m_sid][SCOREBOARD]++;
+  }
+  else if (!issued_inst){
     m_stats->shader_cycle_distro[2]++;  // pipeline stalled
+    STALLS[m_shader->m_sid][PIPELINE]++;
+  }
 
   return issued_info;
 }

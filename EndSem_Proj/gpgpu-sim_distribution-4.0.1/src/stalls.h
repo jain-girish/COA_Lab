@@ -6,6 +6,6 @@ enum counters {
     SCOREBOARD,
     PIPELINE
 };
-extern unsigned long long STALLS[3];
+extern unsigned STALLS[28][3];
 
 #endif

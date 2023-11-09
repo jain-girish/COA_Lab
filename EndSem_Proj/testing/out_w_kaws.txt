@@ -254,7 +254,7 @@ GPGPU-Sim uArch:   28  29  30  31  32  33  34
 GPGPU-Sim uArch:   35  36  37  38  39  40  41
 GPGPU-Sim uArch:   42  43  44  45  46  47  48
 GPGPU-Sim uArch:   49  50  51
-c771f866e13df899fc59fe2fce4870da  /home/shlok/Desktop/COA_Lab/EndSem_Proj/testing/a.out
+b8d9ff77f0680268387c4abf0ec2433f  /home/shlok/Desktop/COA_Lab/EndSem_Proj/testing/a.out
 Extracting PTX file and ptxas options    1: a.1.sm_52.ptx -arch=sm_52
 GPGPU-Sim uArch: performance model initialization complete.
 self exe links to: /home/shlok/Desktop/COA_Lab/EndSem_Proj/testing/a.out
@@ -265,7 +265,7 @@ self exe links to: /home/shlok/Desktop/COA_Lab/EndSem_Proj/testing/a.out
 Running md5sum using "md5sum /home/shlok/Desktop/COA_Lab/EndSem_Proj/testing/a.out "
 self exe links to: /home/shlok/Desktop/COA_Lab/EndSem_Proj/testing/a.out
 Extracting specific PTX file named a.1.sm_52.ptx 
-GPGPU-Sim PTX: __cudaRegisterFunction _Z9matrixMulPKiS0_Pii : hostFun 0x0x561123fb69b4, fat_cubin_handle = 1
+GPGPU-Sim PTX: __cudaRegisterFunction _Z9matrixMulPKiS0_Pii : hostFun 0x0x56219e3cf9b4, fat_cubin_handle = 1
 GPGPU-Sim PTX: Parsing a.1.sm_52.ptx
 GPGPU-Sim PTX: instruction assembly for function '_Z9matrixMulPKiS0_Pii'...   done.
 GPGPU-Sim PTX: finished parsing EMBEDDED .ptx file a.1.sm_52.ptx
@@ -274,12 +274,12 @@ GPGPU-Sim PTX: finished loading globals (0 bytes total).
 GPGPU-Sim PTX: loading constants with explicit initializers...  done.
 GPGPU-Sim PTX: Loading PTXInfo from a.1.sm_52.ptx
 GPGPU-Sim PTX: Kernel '_Z9matrixMulPKiS0_Pii' : regs=21, lmem=0, smem=0, cmem=348
-GPGPU-Sim PTX: Setting up arguments for 8 bytes starting at 0x7ffe00526568..
-GPGPU-Sim PTX: Setting up arguments for 8 bytes starting at 0x7ffe00526560..
-GPGPU-Sim PTX: Setting up arguments for 8 bytes starting at 0x7ffe00526558..
-GPGPU-Sim PTX: Setting up arguments for 4 bytes starting at 0x7ffe00526554..
+GPGPU-Sim PTX: Setting up arguments for 8 bytes starting at 0x7fff9eb79898..
+GPGPU-Sim PTX: Setting up arguments for 8 bytes starting at 0x7fff9eb79890..
+GPGPU-Sim PTX: Setting up arguments for 8 bytes starting at 0x7fff9eb79888..
+GPGPU-Sim PTX: Setting up arguments for 4 bytes starting at 0x7fff9eb79884..
 
-GPGPU-Sim PTX: cudaLaunch for 0x0x561123fb69b4 (mode=performance simulation) on stream 0
+GPGPU-Sim PTX: cudaLaunch for 0x0x56219e3cf9b4 (mode=performance simulation) on stream 0
 GPGPU-Sim PTX: finding reconvergence points for '_Z9matrixMulPKiS0_Pii'...
 GPGPU-Sim PTX: Finding dominators for '_Z9matrixMulPKiS0_Pii'...
 GPGPU-Sim PTX: Finding immediate dominators for '_Z9matrixMulPKiS0_Pii'...
@@ -1310,7 +1310,7 @@ partiton_level_parallism_util =      13.9711
 partiton_level_parallism_util_total  =      13.9711
 L2_BW  =     609.3812 GB/Sec
 L2_BW_total  =     609.3812 GB/Sec
-gpu_total_sim_rate=194104
+gpu_total_sim_rate=191931
 
 ========= Core cache stats =========
 L1I_cache:
@@ -2588,10 +2588,10 @@ Hops average = 1 (1 samples)
 ----------------------------END-of-Interconnect-DETAILS-------------------------
 
 
---gpgpu_simulation_time = 0 days, 0 hrs, 4 min, 25 sec (265 sec)
-gpgpu_simulation_rate = 194104 (inst/sec)
-gpgpu_simulation_rate = 581 (cycle/sec)
-gpgpu_silicon_slowdown = 2438898x
+--gpgpu_simulation_time = 0 days, 0 hrs, 4 min, 28 sec (268 sec)
+gpgpu_simulation_rate = 191931 (inst/sec)
+gpgpu_simulation_rate = 575 (cycle/sec)
+gpgpu_silicon_slowdown = 2464347x
 IDLE stalls: 27520
 SCOREBOARD stalls: 1127108
 PIPELINE stalls: 13803713

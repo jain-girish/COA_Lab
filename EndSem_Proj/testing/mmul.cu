@@ -45,7 +45,7 @@ void verify_result(vector<int> &a, vector<int> &b, vector<int> &c, int N) {
 
 int main() {
   // Matrix size of 128 X 128;
-  int N = 1 << 4;
+  int N = 1 << 7;
 
   // Size (in bytes) of matrix
   size_t bytes = N * N * sizeof(int);
@@ -78,6 +78,7 @@ int main() {
 
   dim3 threads(THREADS, THREADS);
   dim3 blocks(28, 32);
+  // dim3 blocks(4, 4);
 
   // Launch kernel
   matrixMul<<<blocks, threads>>>(d_a, d_b, d_c, N);

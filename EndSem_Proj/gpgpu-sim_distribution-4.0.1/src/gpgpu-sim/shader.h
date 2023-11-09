@@ -374,7 +374,7 @@ class scheduler_unit {  // this can be copied freely, so can be used in std
   void remove_shared_warp(shd_warp_t *warp) {
     if(m_supervised_warps.size()>0){
       std::remove(m_supervised_warps.begin(), m_supervised_warps.end(), warp);
-      m_last_supervised_issued = m_supervised_warps.end();
+      done_adding_supervised_warps();
     }
   }
 
