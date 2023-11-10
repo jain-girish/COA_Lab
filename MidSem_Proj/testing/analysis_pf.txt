@@ -1,0 +1,195 @@
+kernel_launch_uid = 1 
+
+Issued:  7124
+Waiting:  38325
+XALU:  106
+XMEM:  1057
+Others:  49763
+Warp Null:  0
+Warp Done:  409077
+CDP1:  0
+CDP2:  0
+Control Hazard:  324
+Diverge Return:  0
+Not Checked:  155136
+_Issued:  1627
+_Waiting:  5601
+_XALU:  1019
+_XMEM:  105
+_Others:  4302
+_Warp Null:  0
+_Warp Done:  142482
+_CDP1:  0
+_CDP2:  0
+_Control Hazard:  0
+_Diverge Return:  0
+
+Total Entries 660912
+Total Expected Entries =  660912
+gpu_tot_sim_cycle = 13770
+
+kernel_launch_uid = 2 
+
+Issued:  7124
+Waiting:  38713
+XALU:  110
+XMEM:  527
+Others:  41702
+Warp Null:  0
+Warp Done:  368155
+CDP1:  0
+CDP2:  0
+Control Hazard:  324
+Diverge Return:  0
+Not Checked:  155153
+_Issued:  1669
+_Waiting:  5626
+_XALU:  1019
+_XMEM:  110
+_Others:  4247
+_Warp Null:  0
+_Warp Done:  142482
+_CDP1:  0
+_CDP2:  0
+_Control Hazard:  0
+_Diverge Return:  0
+
+Total Entries 611808
+Total Expected Entries =  611808
+gpu_tot_sim_cycle = 26517
+
+kernel_launch_uid = 3 
+
+Issued:  7124
+Waiting:  37895
+XALU:  114
+XMEM:  522
+Others:  41459
+Warp Null:  0
+Warp Done:  362837
+CDP1:  0
+CDP2:  0
+Control Hazard:  324
+Diverge Return:  0
+Not Checked:  155149
+_Issued:  1618
+_Waiting:  5637
+_XALU:  1007
+_XMEM:  106
+_Others:  4299
+_Warp Null:  0
+_Warp Done:  142482
+_CDP1:  0
+_CDP2:  0
+_Control Hazard:  0
+_Diverge Return:  0
+
+Total Entries 605424
+Total Expected Entries =  605424
+gpu_tot_sim_cycle = 39131
+
+kernel_launch_uid = 4 
+
+Issued:  7124
+Waiting:  38204
+XALU:  115
+XMEM:  526
+Others:  41227
+Warp Null:  0
+Warp Done:  363435
+CDP1:  0
+CDP2:  0
+Control Hazard:  324
+Diverge Return:  0
+Not Checked:  155189
+_Issued:  1657
+_Waiting:  5651
+_XALU:  1016
+_XMEM:  111
+_Others:  4272
+_Warp Null:  0
+_Warp Done:  142482
+_CDP1:  0
+_CDP2:  0
+_Control Hazard:  0
+_Diverge Return:  0
+
+Total Entries 606144
+Total Expected Entries =  606144
+gpu_tot_sim_cycle = 51760
+
+kernel_launch_uid = 5 
+
+Issued:  6784
+Waiting:  36224
+XALU:  107
+XMEM:  522
+Others:  40518
+Warp Null:  0
+Warp Done:  351797
+CDP1:  0
+CDP2:  0
+Control Hazard:  308
+Diverge Return:  0
+Not Checked:  147756
+_Issued:  1538
+_Waiting:  5357
+_XALU:  973
+_XMEM:  107
+_Others:  4099
+_Warp Null:  0
+_Warp Done:  135682
+_CDP1:  0
+_CDP2:  0
+_Control Hazard:  0
+_Diverge Return:  0
+
+Total Entries 584016
+Total Expected Entries =  584016
+gpu_tot_sim_cycle = 63928
+
+----------------------------------------
+
+Num Kernels:  5
+
+Total Sim Cycles:  63928
+Num Warps:  8
+
+Issued:  35280
+Waiting:  189361
+XALU:  552
+XMEM:  3154
+Others:  214669
+
+Warp Null:  0
+Warp Done:  1855301
+CDP1:  0
+CDP2:  0
+Control Hazard:  1604
+Diverge Return:  0
+
+_Issued:  8109
+_Waiting:  27872
+_XALU:  5034
+_XMEM:  539
+_Others:  21219
+
+_Warp Null:  0
+_Warp Done:  705610
+_CDP1:  0
+_CDP2:  0
+_Control Hazard:  0
+_Diverge Return:  0
+
+Not including warps not checked
+
+Actual Entries 443016
+Actual Entries(including control hazard, etc) 2299921
+
+Including warps not checked
+Warps not Checked:  768383
+
+Actual Entries 505789
+Actual Entries(including control hazard, etc) 3068304
+
+Expected total entries 3068304
